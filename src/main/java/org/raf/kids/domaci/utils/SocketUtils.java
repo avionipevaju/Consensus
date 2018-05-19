@@ -1,4 +1,4 @@
-package org.raf.kids.domaci;
+package org.raf.kids.domaci.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

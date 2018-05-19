@@ -1,8 +1,9 @@
-package org.raf.kids.domaci;
+package org.raf.kids.domaci.utils;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.raf.kids.domaci.workers.Node;
 
 import java.io.FileInputStream;
 import java.io.IOException;

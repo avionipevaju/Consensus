@@ -1,5 +1,7 @@
-package org.raf.kids.domaci;
+package org.raf.kids.domaci.workers;
 
+import org.raf.kids.domaci.utils.SocketUtils;
+import org.raf.kids.domaci.vo.NodeStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,12 +12,14 @@ import java.util.Date;
 public class StatusChecker implements Runnable{
 
     private Node nodeToCheck;
+    private Node nodeChecking;
     private static Logger logger = LoggerFactory.getLogger(StatusChecker.class);
     private long timeout = 5000;
     private long suspectedTimeout = 500;
 
-    public StatusChecker(Node nodeToCheck) {
+    public StatusChecker(Node nodeToCheck, Node nodeChecking) {
         this.nodeToCheck = nodeToCheck;
+        this.nodeChecking = nodeChecking;
     }
 
     @Override
@@ -39,7 +43,7 @@ public class StatusChecker implements Runnable{
                     break;
                 if(elapsed > suspectedTimeout)
                     nodeToCheck.setStatus(NodeStatus.SUSPECTED_FAILURE);
-                    logger.warn("Node {} suscpected of failure", id);
+                    logger.warn("Node {} says: Node {} suspected of failure",nodeChecking.getId(), id);
             }
             try {
                 Thread.sleep(1000);
@@ -48,7 +52,7 @@ public class StatusChecker implements Runnable{
             }
         }
 
-        logger.error("Node {} has failed", id);
+        logger.error("Node {} says: Node {} has failed", nodeChecking.getId(), id);
         nodeToCheck.setStatus(NodeStatus.FAILED);
     }
 }

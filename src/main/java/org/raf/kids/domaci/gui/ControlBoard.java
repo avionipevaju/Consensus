@@ -1,4 +1,7 @@
-package org.raf.kids.domaci;
+package org.raf.kids.domaci.gui;
+
+import org.raf.kids.domaci.workers.Node;
+import org.raf.kids.domaci.vo.NodeStatus;
 
 import javax.swing.*;
 import java.awt.*;

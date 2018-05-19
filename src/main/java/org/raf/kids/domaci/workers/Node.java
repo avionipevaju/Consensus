@@ -1,16 +1,17 @@
-package org.raf.kids.domaci;
+package org.raf.kids.domaci.workers;
 
 
+import org.raf.kids.domaci.listeners.MessageListener;
+import org.raf.kids.domaci.listeners.StatusListener;
+import org.raf.kids.domaci.vo.NodeStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class Node implements Runnable{
 
@@ -51,10 +52,10 @@ public class Node implements Runnable{
     public void run() {
         this.status = NodeStatus.ACTIVE;
         try {
-            NodeListener communicationListener = new NodeListener(communicationPort);
-            communicationListener.startNodeListener();
-            NodeListener statusListener = new NodeListener(statusCheckPort);
-            statusListener.startNodeListener();
+            MessageListener messageListener = new MessageListener(this);
+            messageListener.startListener();
+            StatusListener statusListener = new StatusListener(this);
+            statusListener.startListener();
             logger.info("Started node listener for node {}, {} on communicationPort {}", id, ip, communicationPort);
         } catch (Exception e) {
             logger.error("Error opening node listener socket for node {}, {} on communicationPort {}, error: {}", id, ip, communicationPort, e.getMessage());
@@ -62,7 +63,7 @@ public class Node implements Runnable{
 
         ExecutorService executorService = Executors.newCachedThreadPool();
         for (Node node: neighbours) {
-           executorService.submit(new StatusChecker(node));
+           executorService.submit(new StatusChecker(node, this));
         }
 
     }
