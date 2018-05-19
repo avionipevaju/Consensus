@@ -60,10 +60,8 @@ public class Node implements Runnable{
         }
 
         ExecutorService executorService = Executors.newCachedThreadPool();
-        List<Future<Node>> resultList = new ArrayList<>();
         for (Node node: neighbours) {
-            Future<Node> result = executorService.submit(new StatusChecker(node));
-            resultList.add(result);
+           executorService.submit(new StatusChecker(node));
         }
 
         /*while (true) {

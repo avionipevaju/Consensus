@@ -1,5 +1,8 @@
 package org.raf.kids.domaci;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -8,6 +11,8 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 public class SocketUtils {
+
+	private static Logger logger = LoggerFactory.getLogger(SocketUtils.class);
 
 	public static String readLine(Socket s) {
 		try {
@@ -19,7 +24,7 @@ public class SocketUtils {
 			
 			return line;
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.warn("Connection failure: {}", e.getMessage());
 		}
 		
 		return null;
@@ -35,7 +40,7 @@ public class SocketUtils {
 			writer.write("\n");
 			writer.flush();
 		} catch (IOException e) {
-			e.printStackTrace();
+            logger.warn("Connection failure: {}", e.getMessage());
 		}
 	}
 }

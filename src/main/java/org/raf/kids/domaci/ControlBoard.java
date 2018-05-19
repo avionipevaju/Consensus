@@ -76,6 +76,10 @@ public class ControlBoard extends JFrame implements Runnable {
                     JLabel label = labelList.get(node.getId());
                     label.setForeground(Color.red);
                 }
+                if(node.getStatus().equals(NodeStatus.SUSPECTED_FAILURE)) {
+                    JLabel label = labelList.get(node.getId());
+                    label.setForeground(Color.yellow);
+                }
             }
             try {
                 Thread.sleep(1000);
