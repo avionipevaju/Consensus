@@ -4,10 +4,13 @@ package org.raf.kids.domaci;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class Node implements Runnable{
 
@@ -15,24 +18,25 @@ public class Node implements Runnable{
 
     private int id;
     private String ip;
-    private int port;
+    private int communicationPort;
+    private int statusCheckPort;
     private List<Node> neighbours;
     private NodeStatus status;
     private List<Socket> socketList;
 
-    public Node(int id, String ip, int port, List<Node> neighbours) {
+    public Node(int id, String ip, int communicationPort, int statusCheckPort, List<Node> neighbours) {
         this.id = id;
         this.ip = ip;
-        this.port = port;
+        this.communicationPort = communicationPort;
+        this.statusCheckPort = statusCheckPort;
         this.neighbours = neighbours;
-        this.status = NodeStatus.NOT_STARTED;
-        socketList = new ArrayList<>();
     }
 
-    public Node(int id, String ip, int port) {
+    public Node(int id, String ip, int communicationPort, int statusCheckPort) {
         this.id = id;
         this.ip = ip;
-        this.port = port;
+        this.communicationPort = communicationPort;
+        this.statusCheckPort = statusCheckPort;
         this.status = NodeStatus.NOT_STARTED;
         socketList = new ArrayList<>();
     }
@@ -46,30 +50,30 @@ public class Node implements Runnable{
     public void run() {
         this.status = NodeStatus.ACTIVE;
         try {
-            NodeListener nodeListener = new NodeListener(port);
-            nodeListener.startNodeListener();
-            logger.info("Started node listener for node {}, {} on port {}", id, ip, port);
+            NodeListener communicationListener = new NodeListener(communicationPort);
+            communicationListener.startNodeListener();
+            NodeListener statusListener = new NodeListener(statusCheckPort);
+            statusListener.startNodeListener();
+            logger.info("Started node listener for node {}, {} on communicationPort {}", id, ip, communicationPort);
         } catch (Exception e) {
-            logger.error("Error opening node listener socket for node {}, {} on port {}, error: {}", id, ip, port, e.getMessage());
+            logger.error("Error opening node listener socket for node {}, {} on communicationPort {}, error: {}", id, ip, communicationPort, e.getMessage());
         }
 
-       /* for(Node node: neighbours) {
-            int otherPort = node.getPort();
-            int id = node.getId();
-            String ip = node.getIp();
-            try {
-                Socket socket = new Socket(ip, otherPort);
-                socketList.add(socket);
-                logger.info("Started node {} client, {} on port {} on node {}", id, ip, otherPort, getId());
-            } catch (IOException e) {
-                logger.error("Error opening socket for node {}, {} on port {}, error: {}", id, ip, otherPort, e.getMessage());
-            }
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        List<Future<Node>> resultList = new ArrayList<>();
+        for (Node node: neighbours) {
+            Future<Node> result = executorService.submit(new StatusChecker(node));
+            resultList.add(result);
         }
 
-        while (true) {
-            if(!socketList.isEmpty()) {
-                for(Socket socket: socketList) {
-                    SocketUtils.writeLine(socket, "ping");
+        /*while (true) {
+            for(Future<Node> result: resultList) {
+                if(result.isDone()) {
+                    try {
+                        Node node = result.get();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }*/
@@ -92,12 +96,12 @@ public class Node implements Runnable{
         this.ip = ip;
     }
 
-    public int getPort() {
-        return port;
+    public int getCommunicationPort() {
+        return communicationPort;
     }
 
-    public void setPort(int port) {
-        this.port = port;
+    public void setCommunicationPort(int communicationPort) {
+        this.communicationPort = communicationPort;
     }
 
     public List<Node> getNeighbours() {
@@ -116,12 +120,20 @@ public class Node implements Runnable{
         this.status = status;
     }
 
+    public int getStatusCheckPort() {
+        return statusCheckPort;
+    }
+
+    public void setStatusCheckPort(int statusCheckPort) {
+        this.statusCheckPort = statusCheckPort;
+    }
+
     @Override
     public String toString() {
         return "\nNode{" +
                 "id='" + id + '\'' +
                 ", ip='" + ip + '\'' +
-                ", port='" + port + '\'' +
+                ", communicationPort='" + communicationPort + '\'' +
                 ", status=" + status + '\'' +
                 ", neighbours=" + neighbours +
                 '}';

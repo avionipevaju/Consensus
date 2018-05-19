@@ -5,29 +5,32 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.net.UnknownHostException;
+import java.util.Scanner;
 
 public class Main {
 
     private static Logger logger = LoggerFactory.getLogger(Main.class);
     private static Node node;
+    private static Scanner scanner;
 
     public static void main(String[] args) {
         loadNode();
-        //node.activateNode();
     }
 
     private static void loadNode() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    node = ConfigurationUtils.loadJsonConfiguration("src/main/resources/configuration.json");
-                    logger.info("Loaded node: {} ", node);
-                    ControlBoard controlBoard =  new ControlBoard("Node " + String.valueOf(node.getId()), node);
-                } catch (IOException e) {
-                    logger.error("Error loading and running node: ", e.getMessage());
-                }
+        scanner = new Scanner(System.in);
+        logger.info("Enter node configuration number");
+        String configNumber = scanner.next();
+        SwingUtilities.invokeLater(() -> {
+            try {
+                String configurationUrl = "src/main/resources/configuration"+configNumber+".json";
+                node = ConfigurationUtils.loadJsonConfiguration(configurationUrl);
+                logger.info("Loaded node: {} ", node);
+                ControlBoard controlBoard =  new ControlBoard("Node " + String.valueOf(node.getId()), node);
+                Thread t = new Thread(controlBoard);
+                t.start();
+            } catch (IOException e) {
+                logger.error("Error loading and running node: ", e.getMessage());
             }
         });
 }

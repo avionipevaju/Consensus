@@ -1,0 +1,13 @@
+{
+  "id":"1",
+  "port":"8900",
+  "statusPort":"8901",
+  "neighbourNodes": [
+    {
+      "id":"2",
+      "ipAddress":"127.0.0.1",
+      "port":"8902",
+      "statusPort":"8903"}
+  ]
+
+}

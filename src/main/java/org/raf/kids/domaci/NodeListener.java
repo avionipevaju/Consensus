@@ -29,8 +29,8 @@ public class NodeListener implements Runnable {
             while (true) {
                 Socket clientSocket = nodeListenerSocket.accept();
                 String received = SocketUtils.readLine(clientSocket);
-                if (received.equals("ping")) {
-                    SocketUtils.writeLine(clientSocket, "pong");
+                if (received.equals("status")) {
+                    SocketUtils.writeLine(clientSocket, "ok");
                 } else {
                     logger.info(received);
                 }

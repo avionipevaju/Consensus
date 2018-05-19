@@ -17,16 +17,17 @@ public class ConfigurationUtils {
 
         int id = jsonObject.getInt("id");
         int port = jsonObject.getInt("port");
+        int statusPort = jsonObject.getInt("statusPort");
         JSONArray neighbours = jsonObject.getJSONArray("neighbourNodes");
 
         ArrayList<Node> neighbourList = new ArrayList<>();
         for(Object object: neighbours) {
             JSONObject jo = (JSONObject) object;
-            Node temp =  new Node(jo.getInt("id"), jo.getString("ipAddress"), jo.getInt("port"));
+            Node temp =  new Node(jo.getInt("id"), jo.getString("ipAddress"), jo.getInt("port"), jo.getInt("statusPort"));
             neighbourList.add(temp);
         }
 
-        return new Node(id, "127.0.0.1", port, neighbourList);
+        return new Node(id, "127.0.0.1", port, statusPort, neighbourList);
 
     }
 
