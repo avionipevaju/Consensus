@@ -7,7 +7,12 @@
       "id":"1",
       "ipAddress":"127.0.0.1",
       "port":"8900",
-      "statusPort":"8901"}
+      "statusPort":"8901"},
+    {
+      "id":"3",
+      "ipAddress":"127.0.0.1",
+      "port":"8904",
+      "statusPort":"8905"}
   ]
 
 }

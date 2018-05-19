@@ -23,6 +23,7 @@ public class Node implements Runnable{
     private List<Node> neighbours;
     private NodeStatus status;
     private List<Socket> socketList;
+    private Thread nodeThread;
 
     public Node(int id, String ip, int communicationPort, int statusCheckPort, List<Node> neighbours) {
         this.id = id;
@@ -42,8 +43,8 @@ public class Node implements Runnable{
     }
 
     public void activateNode() {
-        Thread thread = new Thread(this);
-        thread.start();
+        nodeThread= new Thread(this);
+        nodeThread.start();
     }
 
     @Override
@@ -63,18 +64,6 @@ public class Node implements Runnable{
         for (Node node: neighbours) {
            executorService.submit(new StatusChecker(node));
         }
-
-        /*while (true) {
-            for(Future<Node> result: resultList) {
-                if(result.isDone()) {
-                    try {
-                        Node node = result.get();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }*/
 
     }
 

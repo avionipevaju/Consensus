@@ -30,8 +30,8 @@ public class StatusChecker implements Runnable{
             try {
                 Socket socket = new Socket(ip, port);
                 SocketUtils.writeLine(socket, "status");
-                String response =SocketUtils.readLine(socket);
-                logger.info(response);
+                String response = SocketUtils.readLine(socket);
+                elapsed = 0;
             } catch (IOException e) {
                 elapsed += new Date().getTime() - started;
                 if(elapsed > timeout)
