@@ -11,8 +11,8 @@ public class StatusChecker implements Runnable{
 
     private Node nodeToCheck;
     private static Logger logger = LoggerFactory.getLogger(StatusChecker.class);
-    private int timeout = 3000;
-    private int suscpectedTimeout = 1500;
+    private long timeout = 5000;
+    private long suspectedTimeout = 500;
 
     public StatusChecker(Node nodeToCheck) {
         this.nodeToCheck = nodeToCheck;
@@ -32,11 +32,12 @@ public class StatusChecker implements Runnable{
                 SocketUtils.writeLine(socket, "status");
                 String response = SocketUtils.readLine(socket);
                 elapsed = 0;
+                nodeToCheck.setStatus(NodeStatus.ACTIVE);
             } catch (IOException e) {
                 elapsed += new Date().getTime() - started;
                 if(elapsed > timeout)
                     break;
-                if(elapsed > suscpectedTimeout)
+                if(elapsed > suspectedTimeout)
                     nodeToCheck.setStatus(NodeStatus.SUSPECTED_FAILURE);
                     logger.warn("Node {} suscpected of failure", id);
             }

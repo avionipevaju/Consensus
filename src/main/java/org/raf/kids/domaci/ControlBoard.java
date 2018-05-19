@@ -58,7 +58,7 @@ public class ControlBoard extends JFrame implements Runnable {
         for(Node node: node.getNeighbours()) {
             String marker = String.format("Node %s, ip: %s port: %s", node.getId(), node.getIp(), node.getCommunicationPort());
             JLabel neighbourLabel = new JLabel(marker);
-            neighbourLabel.setForeground(Color.GREEN);
+            neighbourLabel.setForeground(Color.gray);
             labelList.put(node.getId(), neighbourLabel);
             neighbourPanel.add(neighbourLabel);
 
@@ -71,17 +71,25 @@ public class ControlBoard extends JFrame implements Runnable {
         List<Node> nodes = node.getNeighbours();
         while (true) {
             for (Node node: nodes) {
-                if(node.getStatus().equals(NodeStatus.FAILED)) {
-                    JLabel label = labelList.get(node.getId());
-                    label.setForeground(Color.red);
-                }
-                if(node.getStatus().equals(NodeStatus.SUSPECTED_FAILURE)) {
-                    JLabel label = labelList.get(node.getId());
-                    label.setForeground(Color.yellow);
+                NodeStatus nodeStatus = node.getStatus();
+                JLabel label = labelList.get(node.getId());
+                switch (nodeStatus) {
+                    case NOT_STARTED:
+                        label.setForeground(Color.gray);
+                        break;
+                    case ACTIVE:
+                        label.setForeground(Color.green);
+                        break;
+                    case SUSPECTED_FAILURE:
+                        label.setForeground(Color.yellow);
+                        break;
+                    case FAILED:
+                        label.setForeground(Color.red);
+                        break;
                 }
             }
             try {
-                Thread.sleep(1000);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
