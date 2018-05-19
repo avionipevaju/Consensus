@@ -1,5 +1,6 @@
 package org.raf.kids.domaci.listeners;
 
+import org.raf.kids.domaci.vo.Message;
 import org.raf.kids.domaci.workers.Node;
 import org.raf.kids.domaci.utils.SocketUtils;
 import org.slf4j.Logger;
@@ -8,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 
 public class MessageListener implements Runnable {
 
@@ -24,14 +26,28 @@ public class MessageListener implements Runnable {
         thread.start();
     }
 
+    public boolean checkMessage(List<Message> messages, Message message) {
+        for(Message m: messages) {
+            if (m.getuId() == message.getuId())
+                return true;
+        }
+        return false;
+    }
+
     @Override
     public void run() {
         try {
             ServerSocket nodeListenerSocket = new ServerSocket(node.getCommunicationPort());
             while (true) {
                 Socket clientSocket = nodeListenerSocket.accept();
-                String received = SocketUtils.readLine(clientSocket);
-                logger.info("Node {} has received a message {}",node.getId(), received);
+                Message received = SocketUtils.readMessage(clientSocket);
+                List<Message> messageList = node.getNodeMessageHistory(received.getTraceId());
+                if (checkMessage(messageList, received)) {
+                    logger.warn("Node {} has already received message {}", node.getId(), received);
+                } else {
+                    logger.info("Node {} has received a message {} ",node.getId(), received);
+                    node.addMessageToNodeHistory(received.getTraceId(), received);
+                }
 
             }
         } catch (IOException e) {

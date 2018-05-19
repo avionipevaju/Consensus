@@ -1,5 +1,6 @@
 package org.raf.kids.domaci.gui;
 
+import org.raf.kids.domaci.vo.Message;
 import org.raf.kids.domaci.workers.Node;
 import org.raf.kids.domaci.vo.NodeStatus;
 
@@ -10,6 +11,7 @@ import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 public class ControlBoard extends JFrame implements Runnable {
 
@@ -52,6 +54,15 @@ public class ControlBoard extends JFrame implements Runnable {
             }
         });
         centerPanel.add(startButton, BorderLayout.NORTH);
+        JButton button = new JButton("Broadcast test message");
+        button.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Message message = new Message(new Random().nextInt(), node.getId(), "Test Message");
+                node.broadcastMessage(message);
+            }
+        });
+        centerPanel.add(button, BorderLayout.SOUTH);
         add(centerPanel, BorderLayout.CENTER);
 
         JPanel neighbourPanel = new JPanel();

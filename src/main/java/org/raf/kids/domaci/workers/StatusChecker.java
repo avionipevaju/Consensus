@@ -34,7 +34,7 @@ public class StatusChecker implements Runnable{
             try {
                 Socket socket = new Socket(ip, port);
                 SocketUtils.writeLine(socket, "status");
-                String response = SocketUtils.readLine(socket);
+                SocketUtils.readLine(socket);
                 elapsed = 0;
                 nodeToCheck.setStatus(NodeStatus.ACTIVE);
             } catch (IOException e) {
@@ -54,5 +54,6 @@ public class StatusChecker implements Runnable{
 
         logger.error("Node {} says: Node {} has failed", nodeChecking.getId(), id);
         nodeToCheck.setStatus(NodeStatus.FAILED);
+        nodeChecking.rebroadcastMessagesForNode(nodeToCheck);
     }
 }

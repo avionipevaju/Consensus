@@ -3,13 +3,18 @@ package org.raf.kids.domaci.workers;
 
 import org.raf.kids.domaci.listeners.MessageListener;
 import org.raf.kids.domaci.listeners.StatusListener;
+import org.raf.kids.domaci.utils.SocketUtils;
+import org.raf.kids.domaci.vo.Message;
 import org.raf.kids.domaci.vo.NodeStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -23,8 +28,8 @@ public class Node implements Runnable{
     private int statusCheckPort;
     private List<Node> neighbours;
     private NodeStatus status;
-    private List<Socket> socketList;
     private Thread nodeThread;
+    private HashMap<Integer, List<Message>> receivedMessages;
 
     public Node(int id, String ip, int communicationPort, int statusCheckPort, List<Node> neighbours) {
         this.id = id;
@@ -32,6 +37,7 @@ public class Node implements Runnable{
         this.communicationPort = communicationPort;
         this.statusCheckPort = statusCheckPort;
         this.neighbours = neighbours;
+        this.receivedMessages = new HashMap<>();
     }
 
     public Node(int id, String ip, int communicationPort, int statusCheckPort) {
@@ -40,12 +46,43 @@ public class Node implements Runnable{
         this.communicationPort = communicationPort;
         this.statusCheckPort = statusCheckPort;
         this.status = NodeStatus.NOT_STARTED;
-        socketList = new ArrayList<>();
+        this.receivedMessages = new HashMap<>();
     }
 
     public void activateNode() {
         nodeThread= new Thread(this);
         nodeThread.start();
+    }
+
+    public void sendMessage(Node nodeToSendTo, Message message) {
+        try {
+            if(nodeToSendTo.getStatus().equals(NodeStatus.ACTIVE)) {
+                Socket socket = new Socket(nodeToSendTo.getIp(), nodeToSendTo.getCommunicationPort());
+                SocketUtils.writeMessage(socket, message);
+                logger.info("Message: {} sent form Node {} to Node {}", message, id, nodeToSendTo.getId());
+                socket.close();
+            } else {
+                logger.error("Failed to send message form Node {} to Node {}. Error: Node inactive", id, nodeToSendTo.getId());
+            }
+        } catch (IOException e) {
+            logger.error("Failed to send message form Node {} to Node {}. Error: {}", id, nodeToSendTo.getId(), e.getMessage());
+        }
+    }
+
+    public void broadcastMessage(Message message) {
+        for (Node node: neighbours) {
+            sendMessage(node, message);
+        }
+    }
+
+    public void rebroadcastMessagesForNode(Node node) {
+        logger.info("Rebroadcast called by node {}", id);
+        List<Message> messages = getNodeMessageHistory(node.getId());
+        logger.info(String.valueOf(messages));
+        for(Message message: messages) {
+            broadcastMessage(message);
+        }
+
     }
 
     @Override
@@ -66,6 +103,19 @@ public class Node implements Runnable{
            executorService.submit(new StatusChecker(node, this));
         }
 
+    }
+
+    public List<Message> getNodeMessageHistory(int nodeId) {
+        List<Message> messageHistory = receivedMessages.get(nodeId);
+        if (messageHistory == null) {
+            messageHistory = new ArrayList<>();
+            receivedMessages.put(nodeId, messageHistory);
+        }
+        return messageHistory;
+    }
+
+    public void addMessageToNodeHistory(int nodeId, Message message) {
+        getNodeMessageHistory(nodeId).add(message);
     }
 
     public int getId() {
