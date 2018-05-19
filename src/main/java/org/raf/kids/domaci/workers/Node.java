@@ -54,35 +54,19 @@ public class Node implements Runnable{
         nodeThread.start();
     }
 
-    public void sendMessage(Node nodeToSendTo, Message message) {
-        try {
-            if(nodeToSendTo.getStatus().equals(NodeStatus.ACTIVE)) {
-                Socket socket = new Socket(nodeToSendTo.getIp(), nodeToSendTo.getCommunicationPort());
-                SocketUtils.writeMessage(socket, message);
-                logger.info("Message: {} sent form Node {} to Node {}", message, id, nodeToSendTo.getId());
-                socket.close();
-            } else {
-                logger.error("Failed to send message form Node {} to Node {}. Error: Node inactive", id, nodeToSendTo.getId());
-            }
-        } catch (IOException e) {
-            logger.error("Failed to send message form Node {} to Node {}. Error: {}", id, nodeToSendTo.getId(), e.getMessage());
-        }
-    }
-
     public void broadcastMessage(Message message) {
+        ExecutorService executorService = Executors.newCachedThreadPool();
         for (Node node: neighbours) {
-            sendMessage(node, message);
+            executorService.submit(new MessageSender(node, this, message));
         }
     }
 
     public void rebroadcastMessagesForNode(Node node) {
         logger.info("Rebroadcast called by node {}", id);
         List<Message> messages = getNodeMessageHistory(node.getId());
-        logger.info(String.valueOf(messages));
         for(Message message: messages) {
             broadcastMessage(message);
         }
-
     }
 
     @Override
