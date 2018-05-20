@@ -54,15 +54,6 @@ public class ControlBoard extends JFrame implements Runnable {
             }
         });
         centerPanel.add(startButton, BorderLayout.NORTH);
-        JButton button = new JButton("Broadcast test message");
-        button.addActionListener(new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Message message = new Message(new Random().nextInt(), node.getId(), "Test Message");
-                node.broadcastMessage(message);
-            }
-        });
-        centerPanel.add(button, BorderLayout.SOUTH);
         add(centerPanel, BorderLayout.CENTER);
 
         JPanel neighbourPanel = new JPanel();

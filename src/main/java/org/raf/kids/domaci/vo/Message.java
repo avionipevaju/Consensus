@@ -1,16 +1,19 @@
 package org.raf.kids.domaci.vo;
 
 import java.io.Serializable;
+import java.util.Random;
 
 public class Message implements Serializable {
 
     private long uId;
+    private MessageType messageType;
     private int traceId;
     private Object content;
 
-    public Message(long uId, int traceId, Object content) {
-        this.uId = uId;
+    public Message(int traceId, MessageType type, Object content) {
+        this.uId = new Random().nextInt();
         this.traceId = traceId;
+        this.messageType = type;
         this.content = content;
     }
 
@@ -34,6 +37,14 @@ public class Message implements Serializable {
         return traceId;
     }
 
+    public MessageType getMessageType() {
+        return messageType;
+    }
+
+    public void setMessageType(MessageType messageType) {
+        this.messageType = messageType;
+    }
+
     public void setTraceId(int traceId) {
         this.traceId = traceId;
     }
@@ -42,6 +53,7 @@ public class Message implements Serializable {
     public String toString() {
         return "Message{" +
                 "uId=" + uId +
+                ", messageType=" + messageType +
                 ", traceId=" + traceId +
                 ", content=" + content +
                 '}';

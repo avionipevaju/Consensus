@@ -2,6 +2,7 @@ package org.raf.kids.domaci.workers;
 
 import org.raf.kids.domaci.StartNode;
 import org.raf.kids.domaci.vo.Message;
+import org.raf.kids.domaci.vo.MessageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,13 +25,21 @@ public class RoundExecutor implements Runnable {
     public void run() {
         Random random = new Random();
         if (node.getRound() == node.getId()) {
-            while (node.getProposalList().size() < (StartNode.NODE_COUNT - 1 ) / 2) { }
-            int proposal = (int) node.getProposalList().get(random.nextInt(node.getProposalList().size()-1)).getContent();
-            node.broadcastMessage(new Message(random.nextInt(), node.getId(), proposal));
+            while (node.getProposalList().size() < (StartNode.NODE_COUNT - 1 ) / 2) {
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            logger.info("Proposal list {}", node.getProposalList());
+            Object proposal = node.getProposalList().get(random.nextInt(node.getProposalList().size())).getContent();
+            logger.info("Proposal: {}", proposal);
+            node.broadcastMessage(new Message(node.getId(), MessageType.PROPOSAL, proposal));
         } else {
             ExecutorService executorService = Executors.newCachedThreadPool();
             Node sendTo = node.getNodeNeighbourById(node.getRound());
-            Message message = new Message(new Random().nextInt(), node.getId(), node.getProposal());
+            Message message = new Message(node.getId(), MessageType.INITIAL_PROPOSAL, node.getProposal());
             executorService.submit(new MessageSender(sendTo, node, message));
         }
     }

@@ -27,9 +27,10 @@ public class Node implements Runnable{
     private Thread nodeThread;
     private HashMap<Integer, List<Message>> receivedMessages;
     private List<Message> proposalList;
+    private int ackNumber = 0;
 
     private int round = 1;
-    private int proposal;
+    private Object proposal;
     private Node lastProposer;
 
     public Node(int id, String ip, int communicationPort, int statusCheckPort, List<Node> neighbours) {
@@ -129,6 +130,10 @@ public class Node implements Runnable{
         round++;
     }
 
+    public void addAck() {
+        ackNumber++;
+    }
+
     public int getId() {
         return id;
     }
@@ -181,11 +186,11 @@ public class Node implements Runnable{
         return round;
     }
 
-    public int getProposal() {
+    public Object getProposal() {
         return proposal;
     }
 
-    public void setProposal(int proposal) {
+    public void setProposal(Object proposal) {
         this.proposal = proposal;
     }
 

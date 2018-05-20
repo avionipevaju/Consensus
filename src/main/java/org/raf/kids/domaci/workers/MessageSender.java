@@ -2,12 +2,14 @@ package org.raf.kids.domaci.workers;
 
 import org.raf.kids.domaci.utils.SocketUtils;
 import org.raf.kids.domaci.vo.Message;
+import org.raf.kids.domaci.vo.MessageType;
 import org.raf.kids.domaci.vo.NodeStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.security.spec.ECField;
 
 public class MessageSender implements Runnable {
 
@@ -26,16 +28,31 @@ public class MessageSender implements Runnable {
     @Override
     public void run() {
         try {
+            while(sendTo.getStatus().equals(NodeStatus.SUSPECTED_FAILURE)) {
+                Thread.sleep(333);
+            }
             if(sendTo.getStatus().equals(NodeStatus.ACTIVE)) {
+                MessageType type = message.getMessageType();
                 Socket socket = new Socket(sendTo.getIp(), sendTo.getCommunicationPort());
                 SocketUtils.writeMessage(socket, message);
                 logger.info("Message: {} sent form Node {} to Node {}", message, sendFrom.getId(), sendTo.getId());
-                logger.info("Node {} says: {}", sendTo.getId(), SocketUtils.readLine(socket));
+                switch (type) {
+                    case INITIAL_PROPOSAL:
+                        break;
+                    case PROPOSAL:
+                        String response = SocketUtils.readLine(socket);
+                        if(response.equals("ACK"))
+                            sendFrom.addAck();
+                        logger.info("Node {} says: {}", sendTo.getId(), response);
+                        break;
+                    case DECISION:
+                        break;
+                }
                 socket.close();
             } else {
                 logger.error("Failed to send message form Node {} to Node {}. Error: Node inactive", sendFrom.getId(), sendTo.getId());
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error("Failed to send message form Node {} to Node {}. Error: {}", sendFrom.getId(), sendTo.getId(), e.getMessage());
         }
 
