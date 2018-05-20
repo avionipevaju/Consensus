@@ -1,8 +1,13 @@
 {
-  "id":"2",
-  "port":"8902",
-  "statusPort":"8903",
+  "id":"4",
+  "port":"8906",
+  "statusPort":"8907",
   "neighbourNodes": [
+    {
+      "id":"2",
+      "ipAddress":"127.0.0.1",
+      "port":"8902",
+      "statusPort":"8903"},
     {
       "id":"1",
       "ipAddress":"127.0.0.1",
@@ -12,13 +17,7 @@
       "id":"3",
       "ipAddress":"127.0.0.1",
       "port":"8904",
-      "statusPort":"8905"},
-    {
-      "id":"4",
-      "ipAddress":"127.0.0.1",
-      "port":"8906",
-      "statusPort":"8907"
-    }
+      "statusPort":"8905"}
   ]
 
 }

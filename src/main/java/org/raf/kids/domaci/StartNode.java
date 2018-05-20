@@ -15,7 +15,7 @@ public class StartNode {
     private static Logger logger = LoggerFactory.getLogger(StartNode.class);
     private static Node node;
     private static Scanner scanner;
-    public static final int NODE_COUNT = 3;
+    public static final int NODE_COUNT = 4;
 
     public static void main(String[] args) {
         loadNode();

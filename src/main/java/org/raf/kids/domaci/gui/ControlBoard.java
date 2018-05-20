@@ -29,7 +29,7 @@ public class ControlBoard extends JFrame implements Runnable {
     }
 
     private void initFrame() {
-        setSize(400,400);
+        setSize(400,150);
         setBackground(Color.white);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);

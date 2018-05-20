@@ -28,6 +28,7 @@ public class Node implements Runnable{
     private HashMap<Integer, List<Message>> receivedMessages;
     private List<Message> proposalList;
     private int ackNumber = 0;
+    ExecutorService executorService;
 
     private int round = 1;
     private Object proposal;
@@ -76,6 +77,7 @@ public class Node implements Runnable{
     @Override
     public void run() {
         this.status = NodeStatus.ACTIVE;
+        executorService = Executors.newCachedThreadPool();
         try {
             MessageListener messageListener = new MessageListener(this);
             messageListener.startListener();
@@ -86,7 +88,6 @@ public class Node implements Runnable{
             logger.error("Error opening node listener socket for node {}, {} on communicationPort {}, error: {}", id, ip, communicationPort, e.getMessage());
         }
 
-        ExecutorService executorService = Executors.newCachedThreadPool();
         for (Node node: neighbours) {
            executorService.submit(new StatusChecker(node, this));
         }
@@ -128,6 +129,7 @@ public class Node implements Runnable{
 
     public void moveToNextRound() {
         round++;
+        executorService.submit(new RoundExecutor(this));
     }
 
     public void addAck() {
@@ -190,8 +192,27 @@ public class Node implements Runnable{
         return proposal;
     }
 
-    public void setProposal(Object proposal) {
+    public boolean propose() {
+        Node node = getNodeNeighbourById(round);
+        if (node == null) {
+            logger.error("NULL for node {} at round {}", id, round);
+        }
+        if (node.getStatus().equals(NodeStatus.SUSPECTED_FAILURE) || node.getStatus().equals(NodeStatus.FAILED))
+            return false;
+        return true;
+    }
+
+    public void decide(Object proposal) {
         this.proposal = proposal;
+        logger.info("Node {} decided on {}", id, proposal);
+    }
+
+    public int getAckNumber() {
+        return ackNumber;
+    }
+
+    public void setAckNumber(int ackNumber) {
+        this.ackNumber = ackNumber;
     }
 
     @Override

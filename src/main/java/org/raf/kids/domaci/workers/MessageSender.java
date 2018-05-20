@@ -43,6 +43,8 @@ public class MessageSender implements Runnable {
                         String response = SocketUtils.readLine(socket);
                         if(response.equals("ACK"))
                             sendFrom.addAck();
+                        else
+                            sendFrom.moveToNextRound(); //NACK next round
                         logger.info("Node {} says: {}", sendTo.getId(), response);
                         break;
                     case DECISION:

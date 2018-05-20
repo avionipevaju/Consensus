@@ -12,7 +12,13 @@
       "id":"3",
       "ipAddress":"127.0.0.1",
       "port":"8904",
-      "statusPort":"8905"}
+      "statusPort":"8905"},
+    {
+      "id":"4",
+      "ipAddress":"127.0.0.1",
+      "port":"8906",
+      "statusPort":"8907"
+    }
   ]
 
 }
