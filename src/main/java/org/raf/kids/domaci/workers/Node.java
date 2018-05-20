@@ -3,18 +3,14 @@ package org.raf.kids.domaci.workers;
 
 import org.raf.kids.domaci.listeners.MessageListener;
 import org.raf.kids.domaci.listeners.StatusListener;
-import org.raf.kids.domaci.utils.SocketUtils;
 import org.raf.kids.domaci.vo.Message;
 import org.raf.kids.domaci.vo.NodeStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -30,6 +26,11 @@ public class Node implements Runnable{
     private NodeStatus status;
     private Thread nodeThread;
     private HashMap<Integer, List<Message>> receivedMessages;
+    private List<Message> proposalList;
+
+    private int round = 1;
+    private int proposal;
+    private Node lastProposer;
 
     public Node(int id, String ip, int communicationPort, int statusCheckPort, List<Node> neighbours) {
         this.id = id;
@@ -38,6 +39,7 @@ public class Node implements Runnable{
         this.statusCheckPort = statusCheckPort;
         this.neighbours = neighbours;
         this.receivedMessages = new HashMap<>();
+        this.proposalList = new ArrayList<>();
     }
 
     public Node(int id, String ip, int communicationPort, int statusCheckPort) {
@@ -47,6 +49,7 @@ public class Node implements Runnable{
         this.statusCheckPort = statusCheckPort;
         this.status = NodeStatus.NOT_STARTED;
         this.receivedMessages = new HashMap<>();
+        this.proposalList = new ArrayList<>();
     }
 
     public void activateNode() {
@@ -87,6 +90,9 @@ public class Node implements Runnable{
            executorService.submit(new StatusChecker(node, this));
         }
 
+        proposal = id;
+        executorService.submit(new RoundExecutor(this));
+
     }
 
     public List<Message> getNodeMessageHistory(int nodeId) {
@@ -100,6 +106,27 @@ public class Node implements Runnable{
 
     public void addMessageToNodeHistory(int nodeId, Message message) {
         getNodeMessageHistory(nodeId).add(message);
+    }
+
+    public Node getNodeNeighbourById(int nodeId) {
+        for (Node node: neighbours) {
+            if (node.getId() == nodeId){
+                return node;
+            }
+        }
+        return null;
+    }
+
+    public List<Message> getProposalList() {
+        return proposalList;
+    }
+
+    public void addProposal(Message message) {
+        proposalList.add(message);
+    }
+
+    public void moveToNextRound() {
+        round++;
     }
 
     public int getId() {
@@ -148,6 +175,18 @@ public class Node implements Runnable{
 
     public void setStatusCheckPort(int statusCheckPort) {
         this.statusCheckPort = statusCheckPort;
+    }
+
+    public int getRound() {
+        return round;
+    }
+
+    public int getProposal() {
+        return proposal;
+    }
+
+    public void setProposal(int proposal) {
+        this.proposal = proposal;
     }
 
     @Override

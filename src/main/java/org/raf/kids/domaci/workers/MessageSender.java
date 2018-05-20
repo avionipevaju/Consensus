@@ -30,6 +30,7 @@ public class MessageSender implements Runnable {
                 Socket socket = new Socket(sendTo.getIp(), sendTo.getCommunicationPort());
                 SocketUtils.writeMessage(socket, message);
                 logger.info("Message: {} sent form Node {} to Node {}", message, sendFrom.getId(), sendTo.getId());
+                logger.info("Node {} says: {}", sendTo.getId(), SocketUtils.readLine(socket));
                 socket.close();
             } else {
                 logger.error("Failed to send message form Node {} to Node {}. Error: Node inactive", sendFrom.getId(), sendTo.getId());

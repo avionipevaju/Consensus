@@ -45,8 +45,10 @@ public class MessageListener implements Runnable {
                 if (checkMessage(messageList, received)) {
                     logger.warn("Node {} has already received message {}", node.getId(), received);
                 } else {
-                    logger.info("Node {} has received a message {} ",node.getId(), received);
                     node.addMessageToNodeHistory(received.getTraceId(), received);
+                    node.addProposal(received);
+                    logger.info("Node {} has received a message {} ",node.getId(), received);
+                    SocketUtils.writeLine(clientSocket, "ACK");
                 }
 
             }

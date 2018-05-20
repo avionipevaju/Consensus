@@ -10,11 +10,12 @@ import javax.swing.*;
 import java.io.IOException;
 import java.util.Scanner;
 
-public class Main {
+public class StartNode {
 
-    private static Logger logger = LoggerFactory.getLogger(Main.class);
+    private static Logger logger = LoggerFactory.getLogger(StartNode.class);
     private static Node node;
     private static Scanner scanner;
+    public static final int NODE_COUNT = 3;
 
     public static void main(String[] args) {
         loadNode();
@@ -27,7 +28,7 @@ public class Main {
         SwingUtilities.invokeLater(() -> {
             try {
                 String configurationUrl = "src/main/resources/configuration"+configNumber+".json";
-                node = ConfigurationUtils.loadJsonConfiguration(configurationUrl);
+                node = ConfigurationUtils.loadNodeConfiguration(configurationUrl);
                 logger.info("Loaded node: {} ", node);
                 ControlBoard controlBoard =  new ControlBoard("Node " + String.valueOf(node.getId()), node);
                 Thread t = new Thread(controlBoard);
