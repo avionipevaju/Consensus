@@ -2,6 +2,7 @@ package org.raf.kids.domaci.listeners;
 
 import org.raf.kids.domaci.vo.Message;
 import org.raf.kids.domaci.vo.MessageType;
+import org.raf.kids.domaci.vo.NodeStatus;
 import org.raf.kids.domaci.workers.Node;
 import org.raf.kids.domaci.utils.SocketUtils;
 import org.slf4j.Logger;
@@ -69,6 +70,28 @@ public class MessageListener implements Runnable {
                             node.addMessageToNodeHistory(received.getTraceId(), received);
                             logger.info("Node {} has received a message {} ",node.getId(), received);
                         }
+                        break;
+                    case NODE_FAILURE:
+                        int failedNodeId = (int) received.getContent();
+                        if (node.getId() == failedNodeId)
+                            break;
+                        Node failedNode = node.getNodeNeighbourById(failedNodeId);
+                        failedNode.setStatus(NodeStatus.FAILED);
+                        node.rebroadcastMessagesForNode(failedNode);
+                        break;
+                    case SUSPECT_FAILURE:
+                        int suspectedNodeId = (int) received.getContent();
+                        if (node.getId() == suspectedNodeId)
+                            break;
+                        Node suspectedNode = node.getNodeNeighbourById(suspectedNodeId);
+                        suspectedNode.setStatus(NodeStatus.SUSPECTED_FAILURE);
+                        break;
+                    case NODE_ACTIVE:
+                        int activeNodeId = (int) received.getContent();
+                        if (node.getId() == activeNodeId)
+                            break;
+                        Node activeNode = node.getNodeNeighbourById(activeNodeId);
+                        activeNode.setStatus(NodeStatus.ACTIVE);
                         break;
                 }
             }

@@ -2,20 +2,21 @@
   "id":"4",
   "port":"8906",
   "statusPort":"8907",
+  "checkingNode":"1",
   "neighbourNodes": [
     {
       "id":"2",
-      "ipAddress":"127.0.0.1",
+      "ipAddress":"192.168.1.35",
       "port":"8902",
       "statusPort":"8903"},
     {
       "id":"1",
-      "ipAddress":"127.0.0.1",
+      "ipAddress":"192.168.1.35",
       "port":"8900",
       "statusPort":"8901"},
     {
       "id":"3",
-      "ipAddress":"127.0.0.1",
+      "ipAddress":"192.168.1.35",
       "port":"8904",
       "statusPort":"8905"}
   ]

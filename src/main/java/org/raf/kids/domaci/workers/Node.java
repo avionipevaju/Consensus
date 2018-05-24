@@ -4,6 +4,7 @@ package org.raf.kids.domaci.workers;
 import org.raf.kids.domaci.listeners.MessageListener;
 import org.raf.kids.domaci.listeners.StatusListener;
 import org.raf.kids.domaci.vo.Message;
+import org.raf.kids.domaci.vo.MessageType;
 import org.raf.kids.domaci.vo.NodeStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,18 +29,19 @@ public class Node implements Runnable{
     private HashMap<Integer, List<Message>> receivedMessages;
     private List<Message> proposalList;
     private int ackNumber = 0;
+    private Node checkingNode;
     ExecutorService executorService;
 
     private int round = 1;
     private Object proposal;
-    private Node lastProposer;
 
-    public Node(int id, String ip, int communicationPort, int statusCheckPort, List<Node> neighbours) {
+    public Node(int id, String ip, int communicationPort, int statusCheckPort, List<Node> neighbours, int checkingNode) {
         this.id = id;
         this.ip = ip;
         this.communicationPort = communicationPort;
         this.statusCheckPort = statusCheckPort;
         this.neighbours = neighbours;
+        this.checkingNode = getNodeNeighbourById(checkingNode);
         this.receivedMessages = new HashMap<>();
         this.proposalList = new ArrayList<>();
     }
@@ -74,9 +76,30 @@ public class Node implements Runnable{
         }
     }
 
+    public void announceActive(Node node) {
+        logger.info("Active Announce called by node {}", id);
+        Message message = new Message(this.getId(), MessageType.NODE_ACTIVE, node.getId());
+        broadcastMessage(message);
+    }
+
+    public void announceFailure(Node node) {
+        logger.info("Failure Announce called by node {}", id);
+        Message message = new Message(this.getId(), MessageType.NODE_FAILURE, node.getId());
+        broadcastMessage(message);
+    }
+
+    public void suspectFailure(Node node) {
+        logger.info("Suspect Failure called by node {}", id);
+        Message message = new Message(this.getId(), MessageType.SUSPECT_FAILURE, node.getId());
+        broadcastMessage(message);
+    }
+
     @Override
     public void run() {
         this.status = NodeStatus.ACTIVE;
+        for (Node node: neighbours) {
+            node.setStatus(NodeStatus.ACTIVE);
+        }
         executorService = Executors.newCachedThreadPool();
         try {
             MessageListener messageListener = new MessageListener(this);
@@ -88,12 +111,17 @@ public class Node implements Runnable{
             logger.error("Error opening node listener socket for node {}, {} on communicationPort {}, error: {}", id, ip, communicationPort, e.getMessage());
         }
 
-        for (Node node: neighbours) {
-           executorService.submit(new StatusChecker(node, this));
-        }
+        executorService.submit(new StatusChecker(checkingNode, this));
 
-        proposal = id;
-        executorService.submit(new RoundExecutor(this));
+        /*proposal = id;
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        announceActive(this);
+        while(!areNeighboursActive()){}
+        executorService.submit(new RoundExecutor(this));*/
 
     }
 
@@ -201,6 +229,15 @@ public class Node implements Runnable{
         if (node.getStatus().equals(NodeStatus.SUSPECTED_FAILURE) || node.getStatus().equals(NodeStatus.FAILED))
             return false;
         this.proposal = proposal;
+        return true;
+    }
+
+    public boolean areNeighboursActive() {
+        for (Node node: neighbours) {
+            if (node.getStatus() != NodeStatus.ACTIVE) {
+                return false;
+            }
+        }
         return true;
     }
 

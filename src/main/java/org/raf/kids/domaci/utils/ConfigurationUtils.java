@@ -20,6 +20,7 @@ public class ConfigurationUtils {
         int id = jsonObject.getInt("id");
         int port = jsonObject.getInt("port");
         int statusPort = jsonObject.getInt("statusPort");
+        int checkingNode = jsonObject.getInt("checkingNode");
         JSONArray neighbours = jsonObject.getJSONArray("neighbourNodes");
 
         ArrayList<Node> neighbourList = new ArrayList<>();
@@ -29,7 +30,7 @@ public class ConfigurationUtils {
             neighbourList.add(temp);
         }
 
-        return new Node(id, "127.0.0.1", port, statusPort, neighbourList);
+        return new Node(id, "127.0.0.1", port, statusPort, neighbourList, checkingNode);
 
     }
 

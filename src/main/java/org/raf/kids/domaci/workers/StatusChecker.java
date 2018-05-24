@@ -35,6 +35,9 @@ public class StatusChecker implements Runnable{
                 Socket socket = new Socket(ip, port);
                 SocketUtils.writeLine(socket, "status");
                 SocketUtils.readLine(socket);
+                if (nodeToCheck.getStatus() == NodeStatus.SUSPECTED_FAILURE) {
+                    nodeChecking.announceActive(nodeToCheck);
+                }
                 elapsed = 0;
                 nodeToCheck.setStatus(NodeStatus.ACTIVE);
             } catch (IOException e) {
@@ -42,8 +45,11 @@ public class StatusChecker implements Runnable{
                 if(elapsed > timeout)
                     break;
                 if(elapsed > suspectedTimeout)
-                    nodeToCheck.setStatus(NodeStatus.SUSPECTED_FAILURE);
-                    logger.warn("Node {} says: Node {} suspected of failure",nodeChecking.getId(), id);
+                    if(nodeToCheck.getStatus() != NodeStatus.SUSPECTED_FAILURE) {
+                        nodeToCheck.setStatus(NodeStatus.SUSPECTED_FAILURE);
+                        nodeChecking.suspectFailure(nodeToCheck);
+                        logger.warn("Node {} says: Node {} suspected of failure",nodeChecking.getId(), id);
+                    }
             }
             try {
                 Thread.sleep(1000);
@@ -54,6 +60,7 @@ public class StatusChecker implements Runnable{
 
         logger.error("Node {} says: Node {} has failed", nodeChecking.getId(), id);
         nodeToCheck.setStatus(NodeStatus.FAILED);
+        nodeChecking.announceFailure(nodeToCheck);
         nodeChecking.rebroadcastMessagesForNode(nodeToCheck);
     }
 }
