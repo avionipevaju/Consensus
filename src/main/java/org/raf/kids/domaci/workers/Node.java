@@ -144,6 +144,10 @@ public class Node implements Runnable{
         this.id = id;
     }
 
+    public void setProposal(Object proposal) {
+        this.proposal = proposal;
+    }
+
     public String getIp() {
         return ip;
     }
@@ -192,18 +196,15 @@ public class Node implements Runnable{
         return proposal;
     }
 
-    public boolean propose() {
+    public boolean propose(Object proposal) {
         Node node = getNodeNeighbourById(round);
-        if (node == null) {
-            logger.error("NULL for node {} at round {}", id, round);
-        }
         if (node.getStatus().equals(NodeStatus.SUSPECTED_FAILURE) || node.getStatus().equals(NodeStatus.FAILED))
             return false;
+        this.proposal = proposal;
         return true;
     }
 
-    public void decide(Object proposal) {
-        this.proposal = proposal;
+    public void decide() {
         logger.info("Node {} decided on {}", id, proposal);
     }
 

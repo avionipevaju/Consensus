@@ -43,12 +43,13 @@ public class RoundExecutor implements Runnable {
             }
             logger.info("Proposal list {}", node.getProposalList());
             Object proposal = node.getProposalList().get(random.nextInt(node.getProposalList().size())).getContent();
+            node.setProposal(proposal);
             logger.info("Proposal: {}", proposal);
             node.broadcastMessage(new Message(node.getId(), MessageType.PROPOSAL, proposal));
             while (node.getAckNumber() < (StartNode.NODE_COUNT) / 2) {
                 nodeWait(1);
             }
-            node.decide(proposal);
+            node.decide();
             node.broadcastMessage(new Message(node.getId(), MessageType.DECISION, proposal));
             node.moveToNextRound();
         } else {

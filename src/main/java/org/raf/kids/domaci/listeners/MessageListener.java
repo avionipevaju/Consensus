@@ -50,7 +50,7 @@ public class MessageListener implements Runnable {
                         break;
                     case PROPOSAL:
                         logger.info("Node {} has received a message {} ",node.getId(), received);
-                        boolean success = node.propose();
+                        boolean success = node.propose(received.getContent());
                         if(success) {
                             SocketUtils.writeLine(clientSocket, "ACK");
                             node.moveToNextRound();
@@ -65,7 +65,7 @@ public class MessageListener implements Runnable {
                         if (checkMessage(messageList, received)) {
                             logger.warn("Node {} has already received message {}", node.getId(), received);
                         } else {
-                            node.decide(received.getContent());
+                            //node.decide(received.getContent());
                             node.addMessageToNodeHistory(received.getTraceId(), received);
                             logger.info("Node {} has received a message {} ",node.getId(), received);
                         }
