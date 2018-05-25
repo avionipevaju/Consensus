@@ -6,18 +6,21 @@
   "neighbourNodes": [
     {
       "id":"2",
-      "ipAddress":"192.168.1.35",
+      "ipAddress":"192.168.0.17",
       "port":"8902",
+      "checkingNode":"3",
       "statusPort":"8903"},
     {
       "id":"1",
-      "ipAddress":"192.168.1.35",
+      "ipAddress":"192.168.0.17",
       "port":"8900",
+      "checkingNode":"2",
       "statusPort":"8901"},
     {
       "id":"4",
-      "ipAddress":"192.168.1.35",
+      "ipAddress":"192.168.0.17",
       "port":"8906",
+      "checkingNode":"1",
       "statusPort":"8907"
     }
   ]

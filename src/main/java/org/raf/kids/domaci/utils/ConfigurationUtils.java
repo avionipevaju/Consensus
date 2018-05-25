@@ -26,7 +26,7 @@ public class ConfigurationUtils {
         ArrayList<Node> neighbourList = new ArrayList<>();
         for(Object object: neighbours) {
             JSONObject jo = (JSONObject) object;
-            Node temp =  new Node(jo.getInt("id"), jo.getString("ipAddress"), jo.getInt("port"), jo.getInt("statusPort"));
+            Node temp =  new Node(jo.getInt("id"), jo.getString("ipAddress"), jo.getInt("port"), jo.getInt("statusPort"), jo.getInt("checkingNode"));
             neighbourList.add(temp);
         }
 
@@ -34,21 +34,6 @@ public class ConfigurationUtils {
 
     }
 
-    public static List<Node> loadConsensusConfig(String configurationUrl) throws IOException {
-        FileInputStream fileInputStream = new FileInputStream(configurationUrl);
-        String json = IOUtils.toString(fileInputStream);
-        JSONArray jsonArray = new JSONArray(json);
-        List<Node> nodeList = new ArrayList<>();
-
-        for (Object object: jsonArray) {
-            JSONObject jsonObject = (JSONObject) object;
-            Node temp =  new Node(jsonObject.getInt("id"), jsonObject.getString("ipAddress"), jsonObject.getInt("port"), 0);
-            nodeList.add(temp);
-        }
-
-        return nodeList;
-
-    }
 
 }
 

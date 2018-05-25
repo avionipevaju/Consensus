@@ -30,6 +30,7 @@ public class Node implements Runnable{
     private List<Message> proposalList;
     private int ackNumber = 0;
     private Node checkingNode;
+    private int checkingNodeId;
     ExecutorService executorService;
 
     private int round = 1;
@@ -46,7 +47,7 @@ public class Node implements Runnable{
         this.proposalList = new ArrayList<>();
     }
 
-    public Node(int id, String ip, int communicationPort, int statusCheckPort) {
+    public Node(int id, String ip, int communicationPort, int statusCheckPort, int checkingNodeId) {
         this.id = id;
         this.ip = ip;
         this.communicationPort = communicationPort;
@@ -54,6 +55,7 @@ public class Node implements Runnable{
         this.status = NodeStatus.NOT_STARTED;
         this.receivedMessages = new HashMap<>();
         this.proposalList = new ArrayList<>();
+        this.checkingNodeId = checkingNodeId;
     }
 
     public void activateNode() {
@@ -94,6 +96,10 @@ public class Node implements Runnable{
         broadcastMessage(message);
     }
 
+    public void addNodeToCheck(Node node) {
+        executorService.submit(new StatusChecker(node, this));
+    }
+
     @Override
     public void run() {
         this.status = NodeStatus.ACTIVE;
@@ -113,15 +119,14 @@ public class Node implements Runnable{
 
         executorService.submit(new StatusChecker(checkingNode, this));
 
-        /*proposal = id;
+        proposal = id;
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        announceActive(this);
-        while(!areNeighboursActive()){}
-        executorService.submit(new RoundExecutor(this));*/
+
+        executorService.submit(new RoundExecutor(this));
 
     }
 
@@ -224,20 +229,27 @@ public class Node implements Runnable{
         return proposal;
     }
 
+    public Node getCheckingNode() {
+        return checkingNode;
+    }
+
+    public void setCheckingNode(Node checkingNode) {
+        this.checkingNode = checkingNode;
+    }
+
+    public int getCheckingNodeId() {
+        return checkingNodeId;
+    }
+
+    public void setCheckingNodeId(int checkingNodeId) {
+        this.checkingNodeId = checkingNodeId;
+    }
+
     public boolean propose(Object proposal) {
         Node node = getNodeNeighbourById(round);
         if (node.getStatus().equals(NodeStatus.SUSPECTED_FAILURE) || node.getStatus().equals(NodeStatus.FAILED))
             return false;
         this.proposal = proposal;
-        return true;
-    }
-
-    public boolean areNeighboursActive() {
-        for (Node node: neighbours) {
-            if (node.getStatus() != NodeStatus.ACTIVE) {
-                return false;
-            }
-        }
         return true;
     }
 

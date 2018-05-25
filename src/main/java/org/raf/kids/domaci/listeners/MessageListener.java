@@ -77,6 +77,8 @@ public class MessageListener implements Runnable {
                             break;
                         Node failedNode = node.getNodeNeighbourById(failedNodeId);
                         failedNode.setStatus(NodeStatus.FAILED);
+                        logger.info(String.valueOf(failedNode.getCheckingNodeId()));
+                        node.addNodeToCheck(node.getNodeNeighbourById(failedNode.getCheckingNodeId()));
                         node.rebroadcastMessagesForNode(failedNode);
                         break;
                     case SUSPECT_FAILURE:
