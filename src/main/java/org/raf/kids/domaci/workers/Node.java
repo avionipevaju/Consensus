@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Node implements Runnable{
+public class Node implements Runnable {
 
     private static Logger logger = LoggerFactory.getLogger(Node.class);
 
@@ -59,13 +59,13 @@ public class Node implements Runnable{
     }
 
     public void activateNode() {
-        nodeThread= new Thread(this);
+        nodeThread = new Thread(this);
         nodeThread.start();
     }
 
     public void broadcastMessage(Message message) {
         ExecutorService executorService = Executors.newCachedThreadPool();
-        for (Node node: neighbours) {
+        for (Node node : neighbours) {
             executorService.submit(new MessageSender(node, this, message));
         }
     }
@@ -73,7 +73,7 @@ public class Node implements Runnable{
     public void rebroadcastMessagesForNode(Node node) {
         logger.info("Rebroadcast called by node {}", id);
         List<Message> messages = getNodeMessageHistory(node.getId());
-        for(Message message: messages) {
+        for (Message message : messages) {
             broadcastMessage(message);
         }
     }
@@ -97,13 +97,14 @@ public class Node implements Runnable{
     }
 
     public void addNodeToCheck(Node node) {
+        logger.info("Node {} is adding Node {} to check", getId(), node.getId());
         executorService.submit(new StatusChecker(node, this));
     }
 
     @Override
     public void run() {
         this.status = NodeStatus.ACTIVE;
-        for (Node node: neighbours) {
+        for (Node node : neighbours) {
             node.setStatus(NodeStatus.ACTIVE);
         }
         executorService = Executors.newCachedThreadPool();
@@ -144,20 +145,26 @@ public class Node implements Runnable{
     }
 
     public Node getNodeNeighbourById(int nodeId) {
-        for (Node node: neighbours) {
-            if (node.getId() == nodeId){
+        for (Node node : neighbours) {
+            if (node.getId() == nodeId) {
                 return node;
             }
         }
         return null;
     }
 
-    public List<Message> getProposalList() {
-        return proposalList;
+    public boolean propose(Message message) {
+        Node nodeProposing = getNodeNeighbourById(message.getTraceId());
+        if (nodeProposing.getId() < getId()) {
+            this.proposal = message.getContent();
+        }
+        if (nodeProposing.getStatus().equals(NodeStatus.SUSPECTED_FAILURE) || nodeProposing.getStatus().equals(NodeStatus.FAILED))
+            return false;
+        return true;
     }
 
-    public void addProposal(Message message) {
-        proposalList.add(message);
+    public void decide() {
+        logger.info("Node {} decided on {}", id, proposal);
     }
 
     public void moveToNextRound() {
@@ -167,6 +174,14 @@ public class Node implements Runnable{
 
     public void addAck() {
         ackNumber++;
+    }
+
+    public List<Message> getProposalList() {
+        return proposalList;
+    }
+
+    public void addProposal(Message message) {
+        proposalList.add(message);
     }
 
     public int getId() {
@@ -245,18 +260,6 @@ public class Node implements Runnable{
         this.checkingNodeId = checkingNodeId;
     }
 
-    public boolean propose(Object proposal) {
-        Node node = getNodeNeighbourById(round);
-        if (node.getStatus().equals(NodeStatus.SUSPECTED_FAILURE) || node.getStatus().equals(NodeStatus.FAILED))
-            return false;
-        this.proposal = proposal;
-        return true;
-    }
-
-    public void decide() {
-        logger.info("Node {} decided on {}", id, proposal);
-    }
-
     public int getAckNumber() {
         return ackNumber;
     }
@@ -264,6 +267,7 @@ public class Node implements Runnable{
     public void setAckNumber(int ackNumber) {
         this.ackNumber = ackNumber;
     }
+
 
     @Override
     public String toString() {

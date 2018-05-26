@@ -51,7 +51,7 @@ public class MessageListener implements Runnable {
                         break;
                     case PROPOSAL:
                         logger.info("Node {} has received a message {} ",node.getId(), received);
-                        boolean success = node.propose(received.getContent());
+                        boolean success = node.propose(received);
                         if(success) {
                             SocketUtils.writeLine(clientSocket, "ACK");
                             node.moveToNextRound();
@@ -77,8 +77,6 @@ public class MessageListener implements Runnable {
                             break;
                         Node failedNode = node.getNodeNeighbourById(failedNodeId);
                         failedNode.setStatus(NodeStatus.FAILED);
-                        logger.info(String.valueOf(failedNode.getCheckingNodeId()));
-                        node.addNodeToCheck(node.getNodeNeighbourById(failedNode.getCheckingNodeId()));
                         node.rebroadcastMessagesForNode(failedNode);
                         break;
                     case SUSPECT_FAILURE:
