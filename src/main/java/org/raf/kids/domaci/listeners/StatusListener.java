@@ -32,6 +32,9 @@ public class StatusListener implements Runnable {
         try {
             clientSocket = serverSocket.accept();
             while (true) {
+                if(serverSocket == null) {
+                    break;
+                }
                 String received = SocketUtils.readLine(clientSocket);
                 if (received.equals("status")) {
                     SocketUtils.writeLine(clientSocket, "ok");
