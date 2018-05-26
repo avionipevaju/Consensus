@@ -62,10 +62,6 @@ public class StatusChecker implements Runnable{
         nodeToCheck.setStatus(NodeStatus.FAILED);
         nodeChecking.announceFailure(nodeToCheck);
         nodeChecking.addNodeToCheck(nodeChecking.getNodeNeighbourById(nodeToCheck.getCheckingNodeId()));
-        /*for (Node temp: nodeToCheck.getCheckingNodes()) {
-            if(nodeChecking.getId() != temp.getId())
-                nodeChecking.addNodeToCheck(nodeToCheck.getNodeNeighbourById(temp.getCheckingNodeId()));
-        }*/
         nodeChecking.rebroadcastMessagesForNode(nodeToCheck);
     }
 }

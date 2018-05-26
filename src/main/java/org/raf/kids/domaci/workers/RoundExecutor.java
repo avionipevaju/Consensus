@@ -10,7 +10,6 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-
 public class RoundExecutor implements Runnable {
 
     private static Logger logger = LoggerFactory.getLogger(RoundExecutor.class);
@@ -37,6 +36,8 @@ public class RoundExecutor implements Runnable {
         Random random = new Random();
         logger.info("Started round {}", node.getRound());
         if (node.getRound() == node.getId()) {
+            node.getProposalList().clear();
+            node.setAckNumber(0);
             logger.info("Node {} is leader", node.getId());
             while (node.getProposalList().size() < (StartNode.NODE_COUNT) / 2) {
                 nodeWait(1);
