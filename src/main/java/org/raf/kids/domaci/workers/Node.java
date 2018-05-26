@@ -69,6 +69,7 @@ public class Node implements Runnable {
     }
 
     public void deactivateNode() {
+        logger.info("Deactivated Node {}", getId());
         this.status = NodeStatus.FAILED;
         try {
             if (statusListenerSocket != null) {
