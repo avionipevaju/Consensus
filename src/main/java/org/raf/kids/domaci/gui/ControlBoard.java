@@ -7,6 +7,8 @@ import org.raf.kids.domaci.vo.NodeStatus;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -16,7 +18,7 @@ import java.util.Random;
 public class ControlBoard extends JFrame implements Runnable {
 
     private Node node;
-    private JButton startButton, stopButton;
+    private JButton startButton;
     private JPanel centerPanel;
     private HashMap<Integer, JLabel> labelList;
 
@@ -26,6 +28,14 @@ public class ControlBoard extends JFrame implements Runnable {
         this.labelList = new HashMap<>();
         initFrame();
         initComponents();
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                node.deactivateNode();
+                System.exit(0);
+            }
+        });
     }
 
     private void initFrame() {
@@ -54,16 +64,6 @@ public class ControlBoard extends JFrame implements Runnable {
             }
         });
         centerPanel.add(startButton, BorderLayout.NORTH);
-
-        stopButton = new JButton("StopNode");
-        stopButton.addActionListener(new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                node.deactivateNode();
-                centerPanel.setBackground(Color.RED);
-            }
-        });
-        centerPanel.add(stopButton, BorderLayout.SOUTH);
         add(centerPanel, BorderLayout.CENTER);
 
         JPanel neighbourPanel = new JPanel();
