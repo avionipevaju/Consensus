@@ -147,7 +147,7 @@ public class Node implements Runnable {
         logger.info("Starting system");
 
         executorService.submit(new StatusChecker(checkingNode, this));
-        //executorService.submit(new RoundExecutor(this));
+        executorService.submit(new RoundExecutor(this));
 
     }
 

@@ -111,7 +111,7 @@ public class MessageListener implements Runnable {
             }
             logger.error("Error starting message listener socket at port: {} ", node.getCommunicationPort(), e);
         } finally {
-            logger.info("CLOSING");
+            logger.info("Closing message listener socket on Node {}", node.getId());
             try {
                 if(nodeListenerSocket != null) {
                     nodeListenerSocket.close();

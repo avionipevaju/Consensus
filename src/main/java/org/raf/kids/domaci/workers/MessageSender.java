@@ -28,14 +28,14 @@ public class MessageSender implements Runnable {
 
     @Override
     public void run() {
+        Socket socket = new Socket();
         try {
+            socket.connect(new InetSocketAddress(sendTo.getIp(),sendTo.getCommunicationPort()), 500);
             while(sendTo.getStatus().equals(NodeStatus.SUSPECTED_FAILURE)) {
                 Thread.sleep(333);
             }
             if(sendTo.getStatus().equals(NodeStatus.ACTIVE)) {
                 MessageType type = message.getMessageType();
-                Socket socket = new Socket();
-                socket.connect(new InetSocketAddress(sendTo.getIp(),sendTo.getCommunicationPort()), 10);
                 SocketUtils.writeMessage(socket, message);
                 logger.info("Message: {} sent form Node {} to Node {}", message, sendFrom.getId(), sendTo.getId());
                 switch (type) {
@@ -52,12 +52,18 @@ public class MessageSender implements Runnable {
                     case DECISION:
                         break;
                 }
-                socket.close();
             } else {
                 logger.error("Failed to send message form Node {} to Node {}. Error: Node inactive", sendFrom.getId(), sendTo.getId());
             }
         } catch (Exception e) {
             logger.error("Failed to send message form Node {} to Node {}. Error: {}", sendFrom.getId(), sendTo.getId(), e.getMessage());
+        } finally {
+            logger.info("Closed message sender socket for Node {}", sendFrom.getId());
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
     }

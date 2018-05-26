@@ -52,7 +52,7 @@ public class StatusListener implements Runnable {
             }
             logger.error("Error starting status listener socket at port: {} ", node.getStatusCheckPort(), e);
         } finally {
-            logger.info("CLOSING");
+            logger.info("Closing status listener socket on Node {}", node.getId());
             try {
                 if(serverSocket != null) {
                     serverSocket.close();
