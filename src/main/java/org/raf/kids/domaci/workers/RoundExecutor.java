@@ -36,8 +36,8 @@ public class RoundExecutor implements Runnable {
         Random random = new Random();
         logger.info("Started round {}", node.getRound());
         if (node.getRound() == node.getId()) {
-            node.getProposalList().clear();
-            node.setAckNumber(0);
+            //node.getProposalList().clear();
+            //node.setAckNumber(0);
             logger.info("Node {} is leader", node.getId());
             while (node.getProposalList().size() < (StartNode.NODE_COUNT) / 2) {
                 nodeWait(1);

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.spec.ECField;
 
@@ -33,7 +34,8 @@ public class MessageSender implements Runnable {
             }
             if(sendTo.getStatus().equals(NodeStatus.ACTIVE)) {
                 MessageType type = message.getMessageType();
-                Socket socket = new Socket(sendTo.getIp(), sendTo.getCommunicationPort());
+                Socket socket = new Socket();
+                socket.connect(new InetSocketAddress(sendTo.getIp(),sendTo.getCommunicationPort()), 10);
                 SocketUtils.writeMessage(socket, message);
                 logger.info("Message: {} sent form Node {} to Node {}", message, sendFrom.getId(), sendTo.getId());
                 switch (type) {

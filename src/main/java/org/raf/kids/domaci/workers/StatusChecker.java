@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Date;
 
@@ -32,7 +33,8 @@ public class StatusChecker implements Runnable{
         while (true) {
             started = new Date().getTime();
             try {
-                Socket socket = new Socket(ip, port);
+                Socket socket = new Socket();
+                socket.connect(new InetSocketAddress(ip,port), 10);
                 SocketUtils.writeLine(socket, "status");
                 SocketUtils.readLine(socket);
                 if (nodeToCheck.getStatus() != NodeStatus.ACTIVE) {
@@ -50,11 +52,6 @@ public class StatusChecker implements Runnable{
                         nodeChecking.suspectFailure(nodeToCheck);
                         logger.warn("Node {} says: Node {} suspected of failure",nodeChecking.getId(), id);
                     }
-            }
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
 
