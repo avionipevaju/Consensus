@@ -28,35 +28,31 @@ public class MessageSender implements Runnable {
 
     @Override
     public void run() {
-        Socket socket = new Socket();
+        Socket socket = null;
         try {
-            socket.connect(new InetSocketAddress(sendTo.getIp(),sendTo.getCommunicationPort()), 500);
+            socket = new Socket();
+            socket.connect(new InetSocketAddress(sendTo.getIp(),sendTo.getCommunicationPort()), 5000);
             while(sendTo.getStatus().equals(NodeStatus.SUSPECTED_FAILURE)) {
                 Thread.sleep(333);
             }
             if(sendTo.getStatus().equals(NodeStatus.ACTIVE)) {
                 MessageType type = message.getMessageType();
                 SocketUtils.writeMessage(socket, message);
-                logger.info("Message: {} sent form Node {} to Node {}", message, sendFrom.getId(), sendTo.getId());
                 switch (type) {
                     case INITIAL_PROPOSAL:
                         break;
                     case PROPOSAL:
-                        String response = SocketUtils.readLine(socket);
-                        if(response.equals("ACK"))
-                            sendFrom.addAck();
-                        else
-                            sendFrom.moveToNextRound(); //NACK next round
-                        logger.info("Node {} says: {}", sendTo.getId(), response);
+                        sendFrom.addAck();
                         break;
                     case DECISION:
                         break;
                 }
+                logger.info("Message: {} sent form Node {} to Node {}", message, sendFrom.getId(), sendTo.getId());
             } else {
                 logger.error("Failed to send message form Node {} to Node {}. Error: Node inactive", sendFrom.getId(), sendTo.getId());
             }
         } catch (Exception e) {
-            logger.error("Failed to send message form Node {} to Node {}. Error: {}", sendFrom.getId(), sendTo.getId(), e.getMessage());
+            logger.error("Failed to send message form Node {} to Node {}. Error: ", sendFrom.getId(), sendTo.getId(), e);
         } finally {
             logger.info("Closed message sender socket for Node {}", sendFrom.getId());
             try {

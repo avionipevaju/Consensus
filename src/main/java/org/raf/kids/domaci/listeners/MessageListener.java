@@ -55,11 +55,9 @@ public class MessageListener implements Runnable {
                         logger.info("Node {} has received a message {} ",node.getId(), received);
                         boolean success = node.propose(received);
                         if(success) {
-                            SocketUtils.writeLine(clientSocket, "ACK");
                             node.moveToNextRound();
                         }
                         else {
-                            SocketUtils.writeLine(clientSocket, "NACK");
                             node.moveToNextRound(); //NACK
                         }
                         break;
@@ -99,6 +97,8 @@ public class MessageListener implements Runnable {
                         node.deactivateNode();
                         node.startStatusListener();
                         break;
+                    default:
+                        logger.info("MADRFAKR");
                 }
             }
         } catch (Exception e) {
@@ -113,13 +113,12 @@ public class MessageListener implements Runnable {
         } finally {
             logger.info("Closing message listener socket on Node {}", node.getId());
             try {
-                if(nodeListenerSocket != null) {
-                    nodeListenerSocket.close();
+                if(clientSocket != null) {
+                    clientSocket.close();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
     }
