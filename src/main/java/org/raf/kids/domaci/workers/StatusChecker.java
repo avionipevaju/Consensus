@@ -32,9 +32,9 @@ public class StatusChecker implements Runnable{
         long started;
         while (true) {
             started = new Date().getTime();
+            Socket socket = new Socket();
             try {
-                Socket socket = new Socket();
-                socket.connect(new InetSocketAddress(ip,port), 10);
+                socket.connect(new InetSocketAddress(ip,port), 1);
                 SocketUtils.writeLine(socket, "status");
                 SocketUtils.readLine(socket);
                 if (nodeToCheck.getStatus() != NodeStatus.ACTIVE) {
@@ -53,6 +53,12 @@ public class StatusChecker implements Runnable{
                         logger.warn("Node {} says: Node {} suspected of failure",nodeChecking.getId(), id);
                     }
             }
+            if(!socket.isClosed())
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
         }
 
         logger.error("Node {} says: Node {} has failed", nodeChecking.getId(), id);
