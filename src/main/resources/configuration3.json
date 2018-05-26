@@ -18,7 +18,7 @@
       "statusPort":"8901"},
     {
       "id":"4",
-      "ipAddress":"192.168.0.17",
+      "ipAddress":"192.168.0.14",
       "port":"8906",
       "checkingNode":"1",
       "statusPort":"8907"

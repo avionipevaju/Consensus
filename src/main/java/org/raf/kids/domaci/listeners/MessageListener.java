@@ -66,7 +66,6 @@ public class MessageListener implements Runnable {
                         if (checkMessage(messageList, received)) {
                             logger.warn("Node {} has already received message {}", node.getId(), received);
                         } else {
-                            //node.decide(received.getContent());
                             node.addMessageToNodeHistory(received.getTraceId(), received);
                             logger.info("Node {} has received a message {} ",node.getId(), received);
                         }
@@ -94,6 +93,7 @@ public class MessageListener implements Runnable {
                         activeNode.setStatus(NodeStatus.ACTIVE);
                         break;
                 }
+                //clientSocket.close();
             }
         } catch (Exception e) {
             logger.error("Error starting message listener socket at port: {} ", node.getCommunicationPort(), e);

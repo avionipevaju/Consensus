@@ -36,6 +36,7 @@ public class StatusListener implements Runnable {
                 } else {
                     logger.info("Node {} received unknown request. Message: {}", node.getId(), received);
                 }
+                clientSocket.close();
 
             }
         } catch (IOException e) {

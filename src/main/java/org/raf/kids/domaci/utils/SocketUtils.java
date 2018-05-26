@@ -15,11 +15,13 @@ public class SocketUtils {
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(s.getOutputStream());
             objectOutputStream.writeObject(message);
             objectOutputStream.flush();
+			objectOutputStream.close();
     }
 
     public static Message readMessage(Socket s) throws IOException, ClassNotFoundException {
             ObjectInputStream objectInputStream =  new ObjectInputStream(s.getInputStream());
             Message message = (Message) objectInputStream.readObject();
+            objectInputStream.close();
             return message;
     }
 

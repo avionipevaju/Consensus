@@ -34,7 +34,7 @@ public class StatusChecker implements Runnable{
             started = new Date().getTime();
             Socket socket = new Socket();
             try {
-                socket.connect(new InetSocketAddress(ip,port), 1);
+                socket.connect(new InetSocketAddress(ip,port), 100);
                 SocketUtils.writeLine(socket, "status");
                 SocketUtils.readLine(socket);
                 if (nodeToCheck.getStatus() != NodeStatus.ACTIVE) {
@@ -49,8 +49,8 @@ public class StatusChecker implements Runnable{
                 if(elapsed > suspectedTimeout)
                     if(nodeToCheck.getStatus() != NodeStatus.SUSPECTED_FAILURE) {
                         nodeToCheck.setStatus(NodeStatus.SUSPECTED_FAILURE);
-                        nodeChecking.suspectFailure(nodeToCheck);
                         logger.warn("Node {} says: Node {} suspected of failure",nodeChecking.getId(), id);
+                        nodeChecking.suspectFailure(nodeToCheck);
                     }
             }
             if(!socket.isClosed())
