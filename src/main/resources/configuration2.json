@@ -12,13 +12,13 @@
       "statusPort":"8901"},
     {
       "id":"3",
-      "ipAddress":"192.168.0.11",
+      "ipAddress":"192.168.0.17",
       "port":"8904",
       "checkingNode":"4",
       "statusPort":"8905"},
     {
       "id":"4",
-      "ipAddress":"192.168.0.11",
+      "ipAddress":"192.168.0.17",
       "port":"8906",
       "checkingNode":"1",
       "statusPort":"8907"

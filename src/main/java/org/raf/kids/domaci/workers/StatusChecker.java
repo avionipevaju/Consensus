@@ -10,7 +10,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Date;
 
-public class StatusChecker implements Runnable{
+public class StatusChecker implements Runnable {
 
     private Node nodeToCheck;
     private Node nodeChecking;
@@ -30,11 +30,16 @@ public class StatusChecker implements Runnable{
         String ip = nodeToCheck.getIp();
         int elapsed = 0;
         long started;
+        Socket socket = new Socket();
+        try {
+            socket.connect(new InetSocketAddress(ip, port), 5000);
+        } catch (IOException e) {
+            logger.error("Node {} says: Failed to open status socket to Node {}", nodeChecking.getId(), id, e);
+            return;
+        }
         while (true) {
             started = new Date().getTime();
-            Socket socket = new Socket();
             try {
-                socket.connect(new InetSocketAddress(ip,port), 100);
                 SocketUtils.writeLine(socket, "status");
                 SocketUtils.readLine(socket);
                 if (nodeToCheck.getStatus() != NodeStatus.ACTIVE) {
@@ -44,21 +49,23 @@ public class StatusChecker implements Runnable{
                 nodeToCheck.setStatus(NodeStatus.ACTIVE);
             } catch (IOException e) {
                 elapsed += new Date().getTime() - started;
-                if(elapsed > timeout)
+                if (elapsed > timeout)
                     break;
-                if(elapsed > suspectedTimeout)
-                    if(nodeToCheck.getStatus() != NodeStatus.SUSPECTED_FAILURE) {
+                if (elapsed > suspectedTimeout)
+                    if (nodeToCheck.getStatus() != NodeStatus.SUSPECTED_FAILURE) {
                         nodeToCheck.setStatus(NodeStatus.SUSPECTED_FAILURE);
-                        logger.warn("Node {} says: Node {} suspected of failure",nodeChecking.getId(), id);
+                        logger.warn("Node {} says: Node {} suspected of failure", nodeChecking.getId(), id);
                         nodeChecking.suspectFailure(nodeToCheck);
                     }
             }
-            if(!socket.isClosed())
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        }
+
+        if (socket != null) {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                logger.error("Error closing status socket on Node {}", nodeChecking.getId(), e);
+            }
         }
 
         logger.error("Node {} says: Node {} has failed", nodeChecking.getId(), id);

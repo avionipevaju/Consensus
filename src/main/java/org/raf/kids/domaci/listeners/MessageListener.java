@@ -38,10 +38,12 @@ public class MessageListener implements Runnable {
 
     @Override
     public void run() {
+        ServerSocket nodeListenerSocket = null;
+        Socket clientSocket = null;
         try {
-            ServerSocket nodeListenerSocket = new ServerSocket(node.getCommunicationPort());
+            nodeListenerSocket = new ServerSocket(node.getCommunicationPort());
+            clientSocket = nodeListenerSocket.accept();
             while (true) {
-                Socket clientSocket = nodeListenerSocket.accept();
                 Message received = SocketUtils.readMessage(clientSocket);
                 MessageType type = received.getMessageType();
                 switch (type) {
@@ -60,7 +62,6 @@ public class MessageListener implements Runnable {
                             SocketUtils.writeLine(clientSocket, "NACK");
                             node.moveToNextRound(); //NACK
                         }
-                        clientSocket.close();
                         break;
                     case DECISION:
                         List<Message> messageList = node.getNodeMessageHistory(received.getTraceId());
@@ -96,7 +97,24 @@ public class MessageListener implements Runnable {
                 }
             }
         } catch (Exception e) {
+            try {
+                if (clientSocket != null) {
+                    clientSocket.close();
+                }
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
             logger.error("Error starting message listener socket at port: {} ", node.getCommunicationPort(), e);
+        } finally {
+            logger.info("CLOSING");
+            try {
+                if(nodeListenerSocket != null) {
+                    nodeListenerSocket.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
 
     }

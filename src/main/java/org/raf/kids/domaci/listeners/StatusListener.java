@@ -26,21 +26,37 @@ public class StatusListener implements Runnable {
 
     @Override
     public void run() {
+        ServerSocket nodeListenerSocket = null;
+        Socket clientSocket = null;
         try {
-            ServerSocket nodeListenerSocket = new ServerSocket(node.getStatusCheckPort());
+            nodeListenerSocket = new ServerSocket(node.getStatusCheckPort());
+            clientSocket = nodeListenerSocket.accept();
             while (true) {
-                Socket clientSocket = nodeListenerSocket.accept();
                 String received = SocketUtils.readLine(clientSocket);
                 if (received.equals("status")) {
                     SocketUtils.writeLine(clientSocket, "ok");
                 } else {
                     logger.info("Node {} received unknown request. Message: {}", node.getId(), received);
                 }
-                clientSocket.close();
-
             }
         } catch (IOException e) {
+            try {
+                if (clientSocket != null) {
+                    clientSocket.close();
+                }
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
             logger.error("Error starting status listener socket at port: {} ", node.getStatusCheckPort(), e);
+        } finally {
+            logger.info("CLOSING");
+            try {
+                if(nodeListenerSocket != null) {
+                    nodeListenerSocket.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
     }

@@ -119,7 +119,6 @@ public class Node implements Runnable {
             logger.error("Error opening node listener socket for node {}, {} on communicationPort {}, error: {}", id, ip, communicationPort, e.getMessage());
         }
 
-
         proposal = id;
         logger.info("Waiting for the system to normalize");
         try {
@@ -130,7 +129,7 @@ public class Node implements Runnable {
         logger.info("Starting system");
 
         executorService.submit(new StatusChecker(checkingNode, this));
-       // executorService.submit(new RoundExecutor(this));
+        executorService.submit(new RoundExecutor(this));
 
     }
 
