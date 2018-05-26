@@ -95,7 +95,7 @@ public class MessageListener implements Runnable {
                         break;
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error("Error starting message listener socket at port: {} ", node.getCommunicationPort(), e);
         }
 

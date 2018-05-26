@@ -35,7 +35,7 @@ public class StatusChecker implements Runnable{
                 Socket socket = new Socket(ip, port);
                 SocketUtils.writeLine(socket, "status");
                 SocketUtils.readLine(socket);
-                if (nodeToCheck.getStatus() == NodeStatus.SUSPECTED_FAILURE) {
+                if (nodeToCheck.getStatus() != NodeStatus.ACTIVE) {
                     nodeChecking.announceActive(nodeToCheck);
                 }
                 elapsed = 0;

@@ -11,29 +11,19 @@ public class SocketUtils {
 
 	private static Logger logger = LoggerFactory.getLogger(SocketUtils.class);
 
-	public static void writeMessage(Socket s, Message message) {
-        try {
+	public static void writeMessage(Socket s, Message message) throws IOException {
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(s.getOutputStream());
             objectOutputStream.writeObject(message);
             objectOutputStream.flush();
-        } catch (IOException e) {
-            logger.warn("Connection failure: {}", e.getMessage());
-        }
     }
 
-    public static Message readMessage(Socket s) {
-        try {
+    public static Message readMessage(Socket s) throws IOException, ClassNotFoundException {
             ObjectInputStream objectInputStream =  new ObjectInputStream(s.getInputStream());
             Message message = (Message) objectInputStream.readObject();
             return message;
-        } catch (Exception e) {
-            logger.warn("Connection failure: {}", e.getMessage());
-            return null;
-        }
     }
 
-	public static String readLine(Socket s) {
-		try {
+	public static String readLine(Socket s) throws IOException {
 			BufferedReader reader = new BufferedReader(
 									new InputStreamReader(
 									s.getInputStream()));
@@ -41,24 +31,16 @@ public class SocketUtils {
 			String line = reader.readLine();
 			
 			return line;
-		} catch (IOException e) {
-			logger.warn("Connection failure: {}", e.getMessage());
-		}
-		
-		return null;
 	}
 	
-	public static void writeLine(Socket s, String line) {
-		try {
+	public static void writeLine(Socket s, String line) throws IOException {
 			BufferedWriter writer = new BufferedWriter(
 									new OutputStreamWriter(
 									s.getOutputStream()));
-			
+
 			writer.write(line);
 			writer.write("\n");
 			writer.flush();
-		} catch (IOException e) {
-            logger.warn("Connection failure: {}", e.getMessage());
-		}
+
 	}
 }
