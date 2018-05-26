@@ -75,7 +75,6 @@ public class StatusChecker implements Runnable {
         }
 
         logger.error("Node {} says: Node {} has failed", nodeChecking.getId(), id);
-        nodeChecking.sendMessage(nodeToCheck, new Message(nodeChecking.getId(), MessageType.CLOSE_STATUS_CHECK, "close"));
         nodeToCheck.setStatus(NodeStatus.FAILED);
         nodeChecking.announceFailure(nodeToCheck);
         nodeChecking.addNodeToCheck(nodeChecking.getNodeNeighbourById(nodeToCheck.getCheckingNodeId()));

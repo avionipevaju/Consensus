@@ -1,6 +1,7 @@
 package org.raf.kids.domaci.gui;
 
 import org.raf.kids.domaci.vo.Message;
+import org.raf.kids.domaci.vo.MessageType;
 import org.raf.kids.domaci.workers.Node;
 import org.raf.kids.domaci.vo.NodeStatus;
 
@@ -33,6 +34,7 @@ public class ControlBoard extends JFrame implements Runnable {
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
                 node.deactivateNode();
+                node.sendMessage(node.getCheckingNode(), new Message(node.getCheckingNodeId(), MessageType.CLOSE_STATUS_CHECK, "close"));
                 System.exit(0);
             }
         });
