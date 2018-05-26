@@ -1,6 +1,7 @@
 package org.raf.kids.domaci.workers;
 
 
+import org.raf.kids.domaci.StartNode;
 import org.raf.kids.domaci.listeners.MessageListener;
 import org.raf.kids.domaci.listeners.StatusListener;
 import org.raf.kids.domaci.vo.Message;
@@ -169,6 +170,8 @@ public class Node implements Runnable {
 
     public void moveToNextRound() {
         round++;
+        //round = round % StartNode.NODE_COUNT;
+        //round = round == 0 ? 1: round;
         executorService.submit(new RoundExecutor(this));
     }
 
