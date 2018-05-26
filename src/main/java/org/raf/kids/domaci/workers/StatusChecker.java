@@ -1,6 +1,8 @@
 package org.raf.kids.domaci.workers;
 
 import org.raf.kids.domaci.utils.SocketUtils;
+import org.raf.kids.domaci.vo.Message;
+import org.raf.kids.domaci.vo.MessageType;
 import org.raf.kids.domaci.vo.NodeStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +75,7 @@ public class StatusChecker implements Runnable {
         }
 
         logger.error("Node {} says: Node {} has failed", nodeChecking.getId(), id);
+        nodeChecking.sendMessage(nodeToCheck, new Message(nodeChecking.getId(), MessageType.CLOSE_STATUS_CHECK, "close"));
         nodeToCheck.setStatus(NodeStatus.FAILED);
         nodeChecking.announceFailure(nodeToCheck);
         nodeChecking.addNodeToCheck(nodeChecking.getNodeNeighbourById(nodeToCheck.getCheckingNodeId()));

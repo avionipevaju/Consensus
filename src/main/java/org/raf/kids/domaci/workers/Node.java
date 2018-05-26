@@ -70,7 +70,6 @@ public class Node implements Runnable {
 
     public void deactivateNode() {
         logger.info("Deactivated Node {}", getId());
-        this.status = NodeStatus.FAILED;
         try {
             if (statusListenerSocket != null) {
                 statusListenerSocket.close();
@@ -85,6 +84,10 @@ public class Node implements Runnable {
         for (Node node : neighbours) {
             executorService.submit(new MessageSender(node, this, message));
         }
+    }
+
+    public void sendMessage(Node node, Message message) {
+        executorService.submit(new MessageSender(node, this, message));
     }
 
     public void rebroadcastMessagesForNode(Node node) {
