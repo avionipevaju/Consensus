@@ -33,8 +33,8 @@ public class ControlBoard extends JFrame implements Runnable {
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
+                node.sendMessage(node.getCheckingNode(), new Message(node.getCheckingNode().getId(), MessageType.CLOSE_STATUS_CHECK, "close"));
                 node.deactivateNode();
-                node.sendMessage(node.getCheckingNode(), new Message(node.getCheckingNodeId(), MessageType.CLOSE_STATUS_CHECK, "close"));
                 System.exit(0);
             }
         });

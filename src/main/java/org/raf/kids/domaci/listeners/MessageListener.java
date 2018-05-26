@@ -95,7 +95,7 @@ public class MessageListener implements Runnable {
                         activeNode.setStatus(NodeStatus.ACTIVE);
                         break;
                     case CLOSE_STATUS_CHECK:
-                        logger.info("Received close status check form Node {} on Node {}", received.getTraceId(), node.getId());
+                        logger.info("Received close status check from Node {} on Node {}", received.getTraceId(), node.getId());
                         node.deactivateNode();
                         break;
                 }
