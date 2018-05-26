@@ -35,6 +35,10 @@ public class StatusChecker implements Runnable {
             socket.connect(new InetSocketAddress(ip, port), 5000);
         } catch (IOException e) {
             logger.error("Node {} says: Failed to open status socket to Node {}", nodeChecking.getId(), id, e);
+            nodeToCheck.setStatus(NodeStatus.FAILED);
+            nodeChecking.announceFailure(nodeToCheck);
+            nodeChecking.addNodeToCheck(nodeChecking.getNodeNeighbourById(nodeToCheck.getCheckingNodeId()));
+            nodeChecking.rebroadcastMessagesForNode(nodeToCheck);
             return;
         }
         while (true) {

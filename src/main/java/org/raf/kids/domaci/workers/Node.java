@@ -10,6 +10,8 @@ import org.raf.kids.domaci.vo.NodeStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +35,8 @@ public class Node implements Runnable {
     private Node checkingNode;
     private int checkingNodeId;
     ExecutorService executorService;
+
+    private ServerSocket statusListenerSocket;
 
     private int round = 1;
     private Object proposal;
@@ -62,6 +66,17 @@ public class Node implements Runnable {
     public void activateNode() {
         nodeThread = new Thread(this);
         nodeThread.start();
+    }
+
+    public void deactivateNode() {
+        this.status = NodeStatus.FAILED;
+        try {
+            if (statusListenerSocket != null) {
+                statusListenerSocket.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void broadcastMessage(Message message) {
@@ -112,7 +127,8 @@ public class Node implements Runnable {
         try {
             MessageListener messageListener = new MessageListener(this);
             messageListener.startListener();
-            StatusListener statusListener = new StatusListener(this);
+            statusListenerSocket =  new ServerSocket(getStatusCheckPort());
+            StatusListener statusListener = new StatusListener(this, statusListenerSocket);
             statusListener.startListener();
             logger.info("Started node listener for node {}, {} on communicationPort {}", id, ip, communicationPort);
         } catch (Exception e) {
@@ -129,7 +145,7 @@ public class Node implements Runnable {
         logger.info("Starting system");
 
         executorService.submit(new StatusChecker(checkingNode, this));
-        executorService.submit(new RoundExecutor(this));
+        //executorService.submit(new RoundExecutor(this));
 
     }
 

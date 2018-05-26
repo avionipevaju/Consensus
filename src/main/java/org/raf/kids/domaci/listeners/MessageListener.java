@@ -42,8 +42,8 @@ public class MessageListener implements Runnable {
         Socket clientSocket = null;
         try {
             nodeListenerSocket = new ServerSocket(node.getCommunicationPort());
-            clientSocket = nodeListenerSocket.accept();
             while (true) {
+                clientSocket = nodeListenerSocket.accept();
                 Message received = SocketUtils.readMessage(clientSocket);
                 MessageType type = received.getMessageType();
                 switch (type) {

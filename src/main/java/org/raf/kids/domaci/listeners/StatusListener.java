@@ -14,9 +14,11 @@ public class StatusListener implements Runnable {
     private static Logger logger = LoggerFactory.getLogger(StatusListener.class);
 
     private Node node;
+    private ServerSocket serverSocket;
 
-    public StatusListener(Node node) {
+    public StatusListener(Node node, ServerSocket serverSocket) {
         this.node = node;
+        this.serverSocket = serverSocket;
     }
 
     public void startListener() {
@@ -26,11 +28,9 @@ public class StatusListener implements Runnable {
 
     @Override
     public void run() {
-        ServerSocket nodeListenerSocket = null;
         Socket clientSocket = null;
         try {
-            nodeListenerSocket = new ServerSocket(node.getStatusCheckPort());
-            clientSocket = nodeListenerSocket.accept();
+            clientSocket = serverSocket.accept();
             while (true) {
                 String received = SocketUtils.readLine(clientSocket);
                 if (received.equals("status")) {
@@ -51,8 +51,8 @@ public class StatusListener implements Runnable {
         } finally {
             logger.info("CLOSING");
             try {
-                if(nodeListenerSocket != null) {
-                    nodeListenerSocket.close();
+                if(serverSocket != null) {
+                    serverSocket.close();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
