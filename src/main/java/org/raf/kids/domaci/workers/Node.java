@@ -131,9 +131,7 @@ public class Node implements Runnable {
         try {
             MessageListener messageListener = new MessageListener(this);
             messageListener.startListener();
-            statusListenerSocket =  new ServerSocket(getStatusCheckPort());
-            StatusListener statusListener = new StatusListener(this, statusListenerSocket);
-            statusListener.startListener();
+            startStatusListener();
             logger.info("Started node listener for node {}, {} on communicationPort {}", id, ip, communicationPort);
         } catch (Exception e) {
             logger.error("Error opening node listener socket for node {}, {} on communicationPort {}, error: {}", id, ip, communicationPort, e.getMessage());
@@ -151,6 +149,12 @@ public class Node implements Runnable {
         executorService.submit(new StatusChecker(checkingNode, this));
         //executorService.submit(new RoundExecutor(this));
 
+    }
+
+    public void startStatusListener() throws IOException {
+        statusListenerSocket =  new ServerSocket(getStatusCheckPort());
+        StatusListener statusListener = new StatusListener(this, statusListenerSocket);
+        statusListener.startListener();
     }
 
     public List<Message> getNodeMessageHistory(int nodeId) {
