@@ -60,6 +60,7 @@ public class MessageListener implements Runnable {
                             SocketUtils.writeLine(clientSocket, "NACK");
                             node.moveToNextRound(); //NACK
                         }
+                        clientSocket.close();
                         break;
                     case DECISION:
                         List<Message> messageList = node.getNodeMessageHistory(received.getTraceId());
@@ -93,7 +94,6 @@ public class MessageListener implements Runnable {
                         activeNode.setStatus(NodeStatus.ACTIVE);
                         break;
                 }
-                //clientSocket.close();
             }
         } catch (Exception e) {
             logger.error("Error starting message listener socket at port: {} ", node.getCommunicationPort(), e);
